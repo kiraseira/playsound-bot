@@ -1,3 +1,9 @@
+# bot specific files forsenT
+config.js
+kirabot.sqlite
+# don't upload wav files
+ps/*.wav
+
 # Logs
 logs
 *.log
