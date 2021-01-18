@@ -85,7 +85,7 @@ return new Promise((resolve, reject) => {
 		resolve("finished playback");
 		return;
 	}).catch((err) => {
-		ksb.logger(2, `<playsound> Error while trying to play "${wavpath}": ${err}`);
+		ksb.util.logger(2, `<playsound> Error while trying to play "${wavpath}": ${err}`);
 		ksb.status = "idle";
 		reject("playback error");
 		return;
