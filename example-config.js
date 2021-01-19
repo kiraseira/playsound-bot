@@ -17,5 +17,8 @@ exports.kbconfig = {
 	pspath: `${process.cwd()}/ps/`,					//path to playsound wav files with ending slash
 	devch: "",								//optional channel to join where you can spam commands
 	prodch: {name: "", twid: 0},		//channel namd and twitch it for the channel where the bot will run
-	loglvl: 3										//0: no logging, 1: WARN, 2: INFO, 3: DBG
+	loglvl: 3,										//0: no logging, 1: WARN, 2: INFO, 3: DBG
+	categories: {	a: "",
+					b: "",
+					c: ""}
 }

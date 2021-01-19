@@ -5,6 +5,7 @@ ksb.c	= require("./config.js").kbconfig;
 ksb.stt		= require("set-terminal-title");
 ksb.util	= require("./ksb-util.js");
 ksb.cmds	= require("./commands.js");
+ksb.ps		= require("./twitch-pubsub.js");
 ksb.os		= require("os");
 ksb.fs		= require("fs");
 ksb.player	= require("node-wav-player");
@@ -47,6 +48,7 @@ function onConnect(){
 function onReady(){
 	ptl(2, `<cc> Logged in! Chat module ready.`);
 	joinChannels2();
+	ksb.ps.connect();
 }
 function onClose(){
 	ptl(2, `<cc> Connection to TMI was closed.`);
