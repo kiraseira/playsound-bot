@@ -109,13 +109,18 @@ async function handleWSMsg (msg = {}){
             //ksb.util.logger(3, `<debug> Channel point redemption: ${JSON.stringify(msg)}`);
             const redeemer	= msg.data.user.login;
             const category	= msg.data.reward.title;
-            const uin 		= msg.data.user_input;
+            const uin 		= String(msg.data.user_input).trim().split(" ");
             let tcat = "invalid";
             if (category === ksb.c.categories.a) tcat = "a";
             if (category === ksb.c.categories.b) tcat = "b";
             if (category === ksb.c.categories.c) tcat = "c";
-            if (tcat != "invalid")
-				ksb.cmds.pointPS(redeemer, tcat, String(uin).trim().split(" ")[0].toLowerCase());
+            if (tcat == "invalid") return;
+            if (ksb.c.ps_prefix === null) {
+				ksb.cmds.pointPS(redeemer, tcat, uin[0].toLowerCase());
+			} else {
+				if (uin[0].toLowerCase() === ksb.c.ps_prefix)
+					ksb.cmds.pointPS(redeemer, tcat, uin[1].toLowerCase());
+			}
             break;
         }
     }
