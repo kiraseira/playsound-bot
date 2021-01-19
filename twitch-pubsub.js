@@ -106,7 +106,15 @@ async function handleWSMsg (msg = {}){
             //TODO: same as above, but disable playsounds
             break;
         case 'reward-redeemed':
-            ksb.util.logger(3, `<debug> Channel point redemption: ${JSON.stringify(msg)}`);
+            //ksb.util.logger(3, `<debug> Channel point redemption: ${JSON.stringify(msg)}`);
+            const redeemer	= msg.data.user.login;
+            const category	= msg.data.reward.title;
+            const uin 		= msg.data.user_input;
+            let tcat = "";
+            if (category === ksb.c.categories.a) tcat = "a";
+            if (category === ksb.c.categories.b) tcat = "b";
+            if (category === ksb.c.categories.c) tcat = "c";
+            ksb.cmds.pointPS(redeemer, tcat, String(uin).trim().split(" ")[0].toLowerCase());
             break;
         }
     }
