@@ -110,11 +110,12 @@ async function handleWSMsg (msg = {}){
             const redeemer	= msg.data.user.login;
             const category	= msg.data.reward.title;
             const uin 		= msg.data.user_input;
-            let tcat = "";
+            let tcat = "invalid";
             if (category === ksb.c.categories.a) tcat = "a";
             if (category === ksb.c.categories.b) tcat = "b";
             if (category === ksb.c.categories.c) tcat = "c";
-            ksb.cmds.pointPS(redeemer, tcat, String(uin).trim().split(" ")[0].toLowerCase());
+            if (tcat != "invalid")
+				ksb.cmds.pointPS(redeemer, tcat, String(uin).trim().split(" ")[0].toLowerCase());
             break;
         }
     }
