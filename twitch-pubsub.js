@@ -114,7 +114,7 @@ async function handleWSMsg (msg = {}){
             if (category === ksb.c.categories.a) tcat = "a";
             if (category === ksb.c.categories.b) tcat = "b";
             if (category === ksb.c.categories.c) tcat = "c";
-            if (tcat == "invalid") return;
+            if (tcat === "invalid") return;
             if (ksb.c.ps_prefix === null) {
 				ksb.cmds.pointPS(redeemer, tcat, uin[0].toLowerCase());
 			} else {
