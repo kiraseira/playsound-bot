@@ -1,3 +1,4 @@
+"use strict";
 global.ksb = new Object;
 
 const { ChatClient} = require("dank-twitch-irc");
@@ -11,7 +12,7 @@ ksb.fs		= require("fs");
 ksb.player	= require("node-wav-player");
 ksb.chatclient = new ChatClient({username: ksb.c.username, password: ksb.c.oauth, rateLimits: ksb.c.ratelimit});
 
-ptl = ksb.util.logger;
+const ptl = ksb.util.logger;
 ksb.status = "idle";
 
 ptl(1, "Kira playsound bot v0.1 starting up");
@@ -23,6 +24,7 @@ catch(err) {
 	process.exit(1);
 }	
 ptl(1, `<db> Database opened successfully.`);
+checkConfigCats();
 process.on('exit', () => { ksb.db.close(); });
 
 ksb.chatclient.on("connecting", onConnecting);
@@ -143,6 +145,7 @@ async function sendMsg(channel, msg){
 		ptl(2, `<cc> Warninig: DTI SayError in channel ${channel}: ${err}`);
 	}
 }
+ksb.sendMsg = sendMsg;
 
 async function joinChannels2(){
 	let sDev=true, sMain=true;
@@ -176,6 +179,12 @@ async function joinChannels2(){
 		ptl(2, `<cc> Could join neither the dev or the main channel. Terminating applicationj.`);
 		process.exit(1);
 	}
+}
+
+function checkConfigCats(){
+	if (ksb.c.categories.a.length ===0 ) ptl(1, `<system> Warning: first category name is empty. Playsounds tagged to be in that category will not be playable!`);
+	if (ksb.c.categories.b.length ===0 ) ptl(1, `<system> Warning: second category name is empty. Playsounds tagged to be in that category will not be playable!`);
+	if (ksb.c.categories.c.length ===0 ) ptl(1, `<system> Warning: third category name is empty. Playsounds tagged to be in that category will not be playable!`);
 }
 
 

@@ -7,6 +7,7 @@
  * - go to https://customapi.aidenwallis.co.uk/api/v1/twitch/toID/yourname and get it from there
  * Obviously, replace yourname in the link to your channels name :)
  */ 
+"use strict"; 
 exports.kbconfig = {
 	username: "",								//bots twitch username
 	oauth: "",									//oauth to log into twitch get it from https://twitchapps.com/tmi/ for example

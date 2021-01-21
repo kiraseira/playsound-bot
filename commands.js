@@ -1,3 +1,5 @@
+"use strict";
+
 function template(inParam){
 return new Promise((resolve, reject) => {
 	

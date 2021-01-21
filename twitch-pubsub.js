@@ -7,6 +7,7 @@
  * Modifications: (c) 2020 github.com/kiraseira
  * Modifications are also under the MIT license
  */ 
+"use strict";
 
 const RWS = require('reconnecting-websocket');
 const WS = require('ws');
