@@ -84,6 +84,9 @@ function commandHandler(msg, ch, sender){
 	let inparams = msg.trim().substring(1).split(" ");
 	let cmd, param="";
 	switch(inparams[0]){
+		case "bot":
+			cmd = ksb.cmds.bot;
+			break;
 		case "ping":
 		case "pong":
 			cmd = ksb.cmds.ping;

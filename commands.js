@@ -6,6 +6,12 @@ return new Promise((resolve, reject) => {
 });
 }
 
+function bot(inParam){
+return new Promise((resolve, reject) => {
+	resolve(`This is an on-command/channelpoint redemption playsound bot, made by kiraseira in nodejs. Command prefix: ${ksb.c.prefix}`);
+});
+}
+
 function debug(inParam){
 return new Promise((resolve, reject) => {
 	let usr, cmd, dbgret;
@@ -120,3 +126,4 @@ exports.stopps = stopps;
 exports.listps = listps;
 exports.debug = debug;
 exports.pointPS = pointPS;
+exports.bot = bot;
