@@ -10,6 +10,7 @@ ksb.ps		= require("./twitch-pubsub.js");
 ksb.os		= require("os");
 ksb.fs		= require("fs");
 ksb.player	= require("node-wav-player");
+ksb.messageq= [];
 ksb.chatclient = new ChatClient({username: ksb.c.username, password: ksb.c.oauth, rateLimits: ksb.c.ratelimit});
 
 const ptl = ksb.util.logger;
@@ -51,6 +52,7 @@ function onReady(){
 	ptl(2, `<cc> Logged in! Chat module ready.`);
 	joinChannels();
 	ksb.ps.connect();
+	msgQ();
 	ksb.sendMsg(ksb.c.devch, "connected FeelsDankMan 📣");
 	ksb.sendMsg(ksb.c.prodch.name, "connected FeelsDankMan 📣");
 }
@@ -59,10 +61,12 @@ function onClose(){
 }
 function onError(inErr){
 	ptl(2, `<cc> Chatclient error detected: ${inErr}`);
-	if (String(inErr).match(/CapabilitiesError/) || String(ierror).match(/LoginError\: Failed to login\: Connection closed with no error/)){
-		ptl(1, `<cc> Capability error or donk login error detected, reconnecting the client...`);
+	if (String(inErr).match(/CapabilitiesError/) || String(inErr).match(/LoginError\: Failed to login\: Connection closed with no error/)){
+		ptl(1, `<cc> Capability error or donk login error detected, closing the client then trying to reconnect after 5 seconds`);
 		ksb.chatclient.close();
-		ksb.chatclient.connect();
+		ksb.util.sleep(5000).then(()=>{
+			ksb.chatclient.connect();
+		});
 	}
 }
 
@@ -136,7 +140,7 @@ function commandHandler(msg, ch, sender){
 	});
 }
 
-async function sendMsg(channel, msg){
+function sendMsg(channel, msg){
 	if(!(channel===ksb.c.devch || channel === ksb.c.prodch.name)){
 		ptl(2, `<cc> Warning: sendMsg called with unknown channel ${channel}`);
 		return;
@@ -145,12 +149,7 @@ async function sendMsg(channel, msg){
 		ptl(2, `<cc> Warning: sendMsg called with empty or undefined message`);
 		return;
 	}
-	try{
-		await ksb.chatclient.say(channel, msg+ksb.util.getAS(channel));
-	}
-	catch(err){
-		ptl(2, `<cc> Warninig: DTI SayError in channel ${channel}: ${err}`);
-	}
+	ksb.messageq.push({ch: channel, message: msg+ksb.util.getAS(channel)});
 }
 ksb.sendMsg = sendMsg;
 
@@ -186,6 +185,43 @@ async function joinChannels(){
 		ptl(2, `<cc> Could join neither the dev or the main channel. Terminating applicationj.`);
 		process.exit(1);
 	}
+}
+
+async function msgQ(){
+	ptl(3, `<msgq> Message queue intialized`);
+	const msgDelay = 1100;	//ms
+	let lastmsg = Date.now(), mWait, nextmsg, msgqstate=0;
+	while(1){
+		//wait if the chlient is not ready of there are no messages to post
+		while(!ksb.chatclient.ready){
+			if(msgqstate === 1){
+				ptl(2, `<msgq> Message queue stopping, because the clatclient is not ready.`);
+				msgqstate = 0;
+			}
+			await ksb.util.sleep(500);
+		}
+		if(msgqstate === 0){
+			ptl(2, `<msgq> Message queue resuming.`);
+			msgqstate = 1;
+		}
+		while(ksb.messageq.length===0){
+			await ksb.util.sleep(100);
+		}
+		//calculate the time since the last command and wait only as much as needed
+		mWait =  msgDelay - (Date.now() - lastmsg);
+		if (mWait > 0) await ksb.util.sleep(mWait);
+		
+		nextmsg = ksb.messageq.shift();
+		try{
+			await ksb.chatclient.say(nextmsg.ch, nextmsg.message);
+		}
+		catch(err){
+			ptl(2, `<msgq> Warning: error while trying to post ${nextmsg.message} to channel ${nextmsg.ch}: ${err}`);			
+		}
+		finally{
+			lastmsg = Date.now();
+		}	
+	}	
 }
 
 function checkConfigCats(){
