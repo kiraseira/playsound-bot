@@ -1,11 +1,40 @@
 "use strict";
 
+let antispam = [0, 0];
+
 function getUnixtime(){
 	return Math.floor(new Date()/1000);
 }
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function getAS(channel){
+	switch(channel){
+		case(ksb.c.devch):
+			if(antispam[0]===0){
+				antispam[0]=1;
+				return '';
+			} else {
+				antispam[0]=0;
+				return ' \u{E0000}';
+			}
+			break;
+		case(ksb.c.prodch.name):
+			if(antispam[1]===0){
+				antispam[1]=1;
+				return '';
+			} else {
+				antispam[1]=0;
+				return ' \u{E0000}';
+			}
+			break;
+		default:
+			ksb.util.logger(2, `<antiping> Interal error: specified channel ${channel} is not known.`);
+			return '';
+			break;
+	}
 }
 
 function memusage(){
@@ -92,3 +121,4 @@ exports.DonkDB = DonkDB;
 exports.logger = logger;
 exports.memusage = memusage;
 exports.usercheck = usercheck;
+exports.getAS = getAS;

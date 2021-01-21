@@ -12,6 +12,7 @@
 const RWS = require('reconnecting-websocket');
 const WS = require('ws');
 const crypto = require('crypto');
+let psStarted = false;
 
 const ps = new RWS('wss://pubsub-edge.twitch.tv', [], {WebSocket: WS, startClosed: true});
 
@@ -161,5 +162,8 @@ setInterval(() => {
 }, 250 * 1000);
 
 module.exports.connect = function() {
-    ps.reconnect();
+    if(!psStarted){
+		ps.reconnect();
+		psStarted = true;
+	}	
 };

@@ -49,14 +49,21 @@ function onConnect(){
 }
 function onReady(){
 	ptl(2, `<cc> Logged in! Chat module ready.`);
-	joinChannels2();
+	joinChannels();
 	ksb.ps.connect();
+	ksb.sendMsg(ksb.c.devch, "connected FeelsDankMan 📣");
+	ksb.sendMsg(ksb.c.prodch.name, "connected FeelsDankMan 📣");
 }
 function onClose(){
 	ptl(2, `<cc> Connection to TMI was closed.`);
 }
 function onError(inErr){
 	ptl(2, `<cc> Chatclient error detected: ${inErr}`);
+	if (String(inErr).match(/CapabilitiesError/) || String(ierror).match(/LoginError\: Failed to login\: Connection closed with no error/)){
+		ptl(1, `<cc> Capability error or donk login error detected, reconnecting the client...`);
+		ksb.chatclient.close();
+		ksb.chatclient.connect();
+	}
 }
 
 async function incomingMessage(inMsg){
@@ -139,7 +146,7 @@ async function sendMsg(channel, msg){
 		return;
 	}
 	try{
-		await ksb.chatclient.say(channel, msg);
+		await ksb.chatclient.say(channel, msg+ksb.util.getAS(channel));
 	}
 	catch(err){
 		ptl(2, `<cc> Warninig: DTI SayError in channel ${channel}: ${err}`);
@@ -147,7 +154,7 @@ async function sendMsg(channel, msg){
 }
 ksb.sendMsg = sendMsg;
 
-async function joinChannels2(){
+async function joinChannels(){
 	let sDev=true, sMain=true;
 	if (!ksb.c.devch || ksb.c.devch.length===0){
 		ptl(2, `<cc> not joining a development channel: variable not set.`);
@@ -171,7 +178,7 @@ async function joinChannels2(){
 		}
 		catch(err){
 			ptl(2, `<cc> Error while attempting the main dev channel: ${err}`);
-			smain = false;
+			sMain = false;
 		}	
 	}
 	if(sMain) ptl(1, `<cc> Successfully joined the main channel ${ksb.c.prodch.name}`);
@@ -182,9 +189,9 @@ async function joinChannels2(){
 }
 
 function checkConfigCats(){
-	if (ksb.c.categories.a.length ===0 ) ptl(1, `<system> Warning: first category name is empty. Playsounds tagged to be in that category will not be playable!`);
-	if (ksb.c.categories.b.length ===0 ) ptl(1, `<system> Warning: second category name is empty. Playsounds tagged to be in that category will not be playable!`);
-	if (ksb.c.categories.c.length ===0 ) ptl(1, `<system> Warning: third category name is empty. Playsounds tagged to be in that category will not be playable!`);
+	if (ksb.c.categories.a.length === 0) ptl(1, `<system> Warning: first category name is empty. Playsounds tagged to be in that category will not be playable!`);
+	if (ksb.c.categories.b.length === 0) ptl(1, `<system> Warning: second category name is empty. Playsounds tagged to be in that category will not be playable!`);
+	if (ksb.c.categories.c.length === 0) ptl(1, `<system> Warning: third category name is empty. Playsounds tagged to be in that category will not be playable!`);
 }
 
 
