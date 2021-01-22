@@ -5,8 +5,15 @@ Dank Twitch playsound bot
 
 Developed on debian sid's node 12.x LTS. It *should* work on later.
 
-**Packages needed:**
-* dank-twitch-irc
-* better-sqlite3
-* node-wav-player
-* reconnecting-websocket
+**Note about sqlite3:**
+The program uses better-sqlite3 for database access, however bs3 does not 
+provide prebuild binaries for win32, meaning you need to install Visual Studio 
+with the size of an average GNU/Linux distro to compile it LULW
+
+For this reason I set the project to depend on better-sqlite3-with-prebuilds 
+which has prebuild binaries for a few platforms, however its a bit behind with 
+versions. The bot is developed and tested with this. Yes, I know it's a 
+3rd party thing etc. forsenCD you can edit package.json to use mainline bs3. 
+Compilation on GNU/Linux, BSDs is painless, you probably just need make a cc. 
+npm will tell you.
+

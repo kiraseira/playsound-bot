@@ -1,0 +1,29 @@
+{
+  "name": "playsound-bot",
+  "version": "0.0.2",
+  "description": "Twitch channelpoint playsound bot",
+  "main": "kirabot.js",
+  "scripts": {
+    "test": "return \"no test saj\";"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kiraseira/playsound-bot.git"
+  },
+  "dependencies": {
+    "better-sqlite3-with-prebuilds": "^7.1.0",
+    "dank-twitch-irc": "~4.3.0",
+    "node-wav-player": "^0.2.0",
+    "set-terminal-title": "^1.0.1"
+  },
+  "keywords": [
+    "twitch",
+    "nodejs"
+  ],
+  "author": "kiraseira",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/kiraseira/playsound-bot/issues"
+  },
+  "homepage": "https://github.com/kiraseira/playsound-bot#readme"
+}
