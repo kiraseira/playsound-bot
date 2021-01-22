@@ -12,6 +12,47 @@ return new Promise((resolve, reject) => {
 });
 }
 
+function cmdlist(inparam){
+return new Promise((resolve, reject) => {
+	resolve(`commands (and their aliases): bot, ping(pong), stop(stopps), playsound(play, ps), listplaysounds(listps, playsounds), commands, help`);
+});
+}
+
+function cmdhelp(inParam){
+return new Promise((resolve, reject) => {
+	switch (inParam){
+		case "bot":
+			resolve(`Short info about the bot.`);
+			break;
+		case "debug":
+			resolve(`Lets the operator to run raw javascript, then returns the result of the expression.`);
+			break;
+		case "ping":
+		case "pong":
+			resolve(`The obligatory ping command with some stats.`);
+			break;
+		case "stop":
+		case "stopps":	
+			resolve(`Stops the currently played sound, usable by trusted users only. Note: due to stream delays the sound might have already ended by the time you hear and try to stop it.`);
+			break;
+		case "play":
+		case "ps":
+		case "playsound":
+			resolve(`Usage: ${inParam} <sound name> Plays the target playsound. Normally only trusted users can use it, but can be enabled for everyone.`);
+			break;
+		case "commands":
+			resolve(`Returns a list of current commands. Use ${ksb.c.prefix}help <command name> for help about each command.`);
+			break;
+		case "help":
+			resolve(`gives you help about a topic. Like about "help" currently :)`);
+			break;
+		default:
+			resolve(`no help found. You can use ${ksb.c.prefix}commands for a list of commands then use ${ksb.c.prefix}help <command> for help.`);
+			break;
+	}
+});
+}
+
 function debug(inParam){
 return new Promise((resolve, reject) => {
 	let usr, cmd, dbgret;
@@ -127,3 +168,5 @@ exports.listps = listps;
 exports.debug = debug;
 exports.pointPS = pointPS;
 exports.bot = bot;
+exports.cmdlist = cmdlist;
+exports.cmdhelp = cmdhelp;

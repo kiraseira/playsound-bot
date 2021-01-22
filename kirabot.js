@@ -54,7 +54,7 @@ function onReady(){
 	ksb.ps.connect();
 	msgQ();
 	ksb.sendMsg(ksb.c.devch, "connected FeelsDankMan 📣");
-	ksb.sendMsg(ksb.c.prodch.name, "connected FeelsDankMan 📣");
+	//ksb.sendMsg(ksb.c.prodch.name, "connected FeelsDankMan 📣");
 }
 function onClose(){
 	ptl(2, `<cc> Connection to TMI was closed.`);
@@ -86,6 +86,17 @@ function commandHandler(msg, ch, sender){
 	switch(inparams[0]){
 		case "bot":
 			cmd = ksb.cmds.bot;
+			break;
+		case "help":
+			if(inparams.length === 1){
+				sendMsg(ch, `${sender} please specify a command name to search help for. You can use ${ksb.c.prefix}commands for a list of commands.`);
+				return;
+			}
+			cmd = ksb.cmds.cmdhelp;
+			param = inparams[1];
+			break;
+		case "commands":
+			cmd = ksb.cmds.cmdlist;
 			break;
 		case "ping":
 		case "pong":
