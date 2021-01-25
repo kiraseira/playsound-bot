@@ -128,10 +128,10 @@ async function handleWSMsg (msg = {}){
 					break;
 			}
             if (ksb.c.ps_prefix === null) {
-				ksb.cmds.pointPS(redeemer, tcat, uin[0].toLowerCase());
+				ksb.util.pointPS(redeemer, tcat, uin[0].toLowerCase());
 			} else {
 				if (uin[0].toLowerCase() === ksb.c.ps_prefix)
-					ksb.cmds.pointPS(redeemer, tcat, uin[1].toLowerCase());
+					ksb.util.pointPS(redeemer, tcat, uin[1].toLowerCase());
 			}
             break;
         }

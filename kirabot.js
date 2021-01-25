@@ -2,14 +2,14 @@
 global.ksb = new Object;
 
 const { ChatClient} = require("dank-twitch-irc");
-ksb.c	= require("./config.js").kbconfig;
 ksb.stt		= require("set-terminal-title");
-ksb.util	= require("./ksb-util.js");
-ksb.cmds	= require("./commands.js");
-ksb.ps		= require("./twitch-pubsub.js");
 ksb.os		= require("os");
 ksb.fs		= require("fs");
 ksb.player	= require("node-wav-player");
+ksb.c		= require("./config.js").kbconfig;
+ksb.util	= require("./ksb-util.js");
+ksb.ps		= require("./twitch-pubsub.js");
+ksb.cmds	= [];
 ksb.messageq= [];
 ksb.chatclient = new ChatClient({username: ksb.c.username, password: ksb.c.oauth, rateLimits: ksb.c.ratelimit});
 
@@ -48,14 +48,18 @@ function onConnect(){
 	ptl(2, `<cc> Connected!`);
 	ptl(2, `<cc> Logging in...`);
 }
+
 function onReady(){
 	ptl(2, `<cc> Logged in! Chat module ready.`);
+	ksb.util.loadCommands();
 	joinChannels();
 	ksb.ps.connect();
 	msgQ();
 	ksb.sendMsg(ksb.c.devch, "connected FeelsDankMan 📣");
 	//ksb.sendMsg(ksb.c.prodch.name, "connected FeelsDankMan 📣");
+	ksb.stt(`kirabot online - dev: ${ksb.c.devch}, prod: ${ksb.c.prodch.name}(${ksb.c.prodch.twid})`);
 }
+
 function onClose(){
 	ptl(2, `<cc> Connection to TMI was closed.`);
 }
@@ -80,77 +84,25 @@ async function incomingMessage(inMsg){
 	commandHandler(message, channel, sender);
 }
 
-function commandHandler(msg, ch, sender){
-	let inparams = msg.trim().substring(1).split(" ");
-	let cmd, param="";
-	switch(inparams[0]){
-		case "bot":
-			cmd = ksb.cmds.bot;
-			break;
-		case "help":
-			if(inparams.length === 1){
-				sendMsg(ch, `${sender} please specify a command name to search help for. You can use ${ksb.c.prefix}commands for a list of commands.`);
-				return;
-			}
-			cmd = ksb.cmds.cmdhelp;
-			param = inparams[1];
-			break;
-		case "commands":
-			cmd = ksb.cmds.cmdlist;
-			break;
-		case "ping":
-		case "pong":
-			cmd = ksb.cmds.ping;
-			break;
-		case "stop":
-		case "stopps":
-			if (ksb.status === "idle"){
-				sendMsg(ch, `${sender} playback is already stopped`);
-				return;
-			} else {
-				cmd = ksb.cmds.stopps;
-			}
-			break;
-		case "ps":
-		case "play":
-		case "playsound":
-			if (ksb.status != "idle"){
-				sendMsg(ch, `${sender} a sound file is already playing.`);
-				return;
-			}
-			if (inparams.length<2){
-				sendMsg(ch, `${sender}, you must specify a playsound name`);
-				return;
-			}
-			param = inparams[1];
-			cmd = ksb.cmds.playsound;
-			break;
-		case "listps":
-		case "playsounds":
-		case "listplaysounds":
-			cmd = ksb.cmds.listps;
-			break;
-		case "debug":
-			if (inparams.length===0){
-				sendMsg(ch, "Bad command or filename.");
-				return;
-			}
-			param = {usr: sender, cmd: inparams.slice(1).join(" ")};
-			cmd = ksb.cmds.debug;
-			break;
-		default:
-			ptl(4, `<command handler> Receive unknown command ${inparams[0]}`);
-			return;
-			break;
+function commandHandler(message, channel, sender){
+	let inparams = message.trim().substring(1);
+	let cmd;
+	cmd = ksb.cmds.find(ccmd => ccmd.name === ksb.util.getAlias(inparams.split(" ")[0]));
+	if(!cmd) return;	//there is no command with that name or alias.
+	let userlvl = ksb.util.getUserLevel(sender);
+	if (cmd.userlevel > userlvl){
+		sendMsg(channel, `${sender} you are not allowed to run that command.`);
+		//placeholder: add cooldown here
+		return;
 	}
-	cmd(param).then((data) =>{
-		if (data!="noprint"){
-			sendMsg(ch, sender+", "+data);
-			return;
-		}
+	cmd.code(inparams).then((data) => {
+		sendMsg(channel, `${sender}, ${data}`);
+		//TODO: register command cooldown here
+		return;
 	}).catch((err) => {
-		ptl(1, `<command handler> Error while trying to execute ${inparams[0]}: ${err}`);
-		sendMsg(ch, sender+", error while executing the command: "+err);
+		sendMsg(channel, `${sender}, couldn't execute your command: ${err}`);
+		//TODO: register failed command cd here
+		return;
 	});
 }
 

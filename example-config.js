@@ -20,6 +20,7 @@ exports.kbconfig = {
 	devch: "",									//optional channel to join where you can spam commands
 	prodch: {name: "", twid: 0},				//channel namd and twitch it for the channel where the bot will run
 	loglvl: 3,									//0: no logging, 1: WARN, 2: INFO, 3: DBG
+	failedCmdCD: 5,									//when a command is failed this cooldown is applied rather than the command's
 	categories: {	a: "",						//title of the channelpoint option associated with categories
 					b: "",
 					c: ""}
