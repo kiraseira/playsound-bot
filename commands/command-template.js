@@ -4,11 +4,12 @@ exports.kirabot_command = {
 		help: "",
 		aliases: null,
 		userlevel: 0,
+		pingsender: 1,
 		cds: {
 				user: 5,
 				channel: 10
 			},
-		code: function(lparam) {
+		code: function(sender, lparam) {
 				return new Promise((resolve, reject) => {
 			
 			

@@ -4,11 +4,12 @@ exports.kirabot_command = {
 		help: "returns a list of enabled playsounds",
 		userlevel: 0,
 		aliases: ["pss", "playsounds", "listplaysounds"],
+		pingsender: 1,
 		cds: {
 				user: 5,
 				channel: 10
 			},
-		code: function(lparam) {
+		code: function(sender, lparam) {
 				return new Promise((resolve, reject) => {
 					let sdata = ksb.db.syncSelect(`SELECT * FROM playsounds WHERE enabled='1';`);
 					if (!sdata || sdata.length===0){

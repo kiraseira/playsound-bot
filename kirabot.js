@@ -95,8 +95,11 @@ function commandHandler(message, channel, sender){
 		//placeholder: add cooldown here
 		return;
 	}
-	cmd.code(inparams).then((data) => {
-		sendMsg(channel, `${sender}, ${data}`);
+	cmd.code(sender, inparams).then((data) => {
+		if(cmd.pingsender === 1)
+			sendMsg(channel, `${sender}, ${data}`);
+		else
+			sendMsg(channel, `${data}`);
 		//TODO: register command cooldown here
 		return;
 	}).catch((err) => {

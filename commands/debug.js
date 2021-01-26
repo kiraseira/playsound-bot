@@ -4,11 +4,12 @@ exports.kirabot_command = {
 		help: "Lets the operator to run raw javascript and returns the result of the expression.",
 		aliases: null,
 		userlevel: 3,
+		pingsender: 1,
 		cds: {
 				user: 1,
 				channel: 2
 			},
-		code: function(lparam) {
+		code: function(sender, lparam) {
 				return new Promise((resolve, reject) => {
 					if(lparam.split(" ").length<2){
 						resolve("PowerUpL EntropyWins PowerUpR");

@@ -4,11 +4,12 @@ exports.kirabot_command = {
 		help: "Lets users play sounds on command if enabled. Take a playsound name as parameter.",
 		aliases: ["ps"],
 		userlevel: 1,
+		pingsender: 1,
 		cds: {
 				user: 30,
 				channel: 40
 			},
-		code: function(lparam) {
+		code: function(sender, lparam) {
 				return new Promise((resolve, reject) => {
 					const cparam = lparam.split(" ");
 					if (cparam.length<2){
