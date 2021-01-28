@@ -1,8 +1,11 @@
 "use strict";
 
 let antispam = [0, 0];
-let aliases=[];
-
+let aliases = [];
+let cooldowns = [];
+//cooldowns format: Array of {usr: "username", cmd: "command name", ptime: unixtime}
+//NOTE: channel name is not tracked in cooldowns as only the prod channel is subject to CDs
+const sqlite3 = require("better-sqlite3");
 const user_levels = ["user", "trusted user", "broadcaster", "operator"];
 
 function getUnixtime(){
@@ -19,7 +22,7 @@ function getUserLevel(username){
 	 * 2 - broadcaster of the production channel
 	 * 1 - users marked as trusted by the broadcaster
 	 * 0 - everyone else Okayeg
-	 */ 
+	 */
 	if (username === ksb.c.operator) return 3;
 	if (username === ksb.c.prodch.name ) return 2;
 	let trdata = ksb.db.syncSelect(`SELECT * FROM trusted WHERE username='${username}';`);
@@ -57,7 +60,7 @@ function loadCommands(){
 		}
 		catch(err){
 			logger(1, `<loadcmd> Unable to load command from ${infile}: ${err}`);
-		}	
+		}
 	});
 	if(ksb.cmds.length>0){
 		logger(1, `<loadcmd> Loaded ${ksb.cmds.length} command(s). Loading aliases`);
@@ -117,38 +120,6 @@ function logger(loglvl, logtext){
 		console.log(logtext);
 }
 
-function usercheck(username, context){
-	let sdata;
-	switch(context){
-		case "operator":
-			if(username === ksb.c.operator)
-				return true;
-			else
-				return false;
-			break;
-		case "banned":
-			sdata = ksb.db.syncSelect(`SELECT * FROM bans WHERE name='${username}';`);
-			if (sdata.length>0)
-				return true;
-			else
-				return false;
-			break;
-		case "trusted":
-			sdata = ksb.db.syncSelect(`SELECT * FROM trusted WHERE name='${username}';`);
-			if (sdata.length>0)
-				return true;
-			else
-				return false;
-			break;
-		default:
-			ksb.util.logger(2, `<usercheck> warning: invalid context ${context}`);
-			return false;
-			break;
-	}
-}
-
-
-const sqlite3 = require("better-sqlite3");
 class DonkDB{
 	constructor(dbFile){
 		try{
@@ -229,7 +200,102 @@ function pointPS(sender, category, sndname){
 	}).catch((err) => {
 		ksb.sendMsg(ksb.c.prodch.name, `${sender} there was a problem while trying to play your sound, ask for point refund.`);
 		return;
-	});	
+	});
+}
+
+function registerCooldown(user, command, time){
+	cooldowns.unshift({usr: user, cmd: command, ptime: time});
+}
+
+function getChannelCD(){
+	if(cooldowns.length === 0) return false;
+	const lcmd = cooldowns.find(nam => nam.cmd != "__command_execution");
+	if ((getUnixtime()-lcmd.ptime) > ksb.c.channelcd)
+		return false;
+	else
+		return true;
+}
+
+function getCmdCD(cmd){
+	if(cooldowns.length === 0) return false;
+	const ccmd = cooldowns.find(nam => nam.cmd === cmd);
+	const tcmd = ksb.cmds.find(nam => nam.name === cmd);
+	if(!ccmd || !tcmd) return false;
+
+	if((getUnixtime()-ccmd.ptime) > tcmd.cds.channel){
+		return false;
+	} else {
+		return true;
+	}
+
+}
+
+function getUserCD(name, cmd){
+	if(cooldowns.length === 0) return false;
+	const tcmd = ksb.cmds.find(nam => nam.name === cmd);
+	const ccmd = cooldowns.find(nam => nam.cmd === cmd && nam.usr === name);
+	if(!tcmd || !ccmd) return false;
+	
+	if((getUnixtime()-ccmd.ptime) > tcmd.cds.user){
+		return false;
+	} else {
+		return true;
+	}
+}
+
+function getExecutionStatus(name){
+	if(cooldowns.length === 0) return false;
+	//const ccmd = cooldowns.find(nam => nam.usr === name && nam.cmd==="__command_execution");
+	const ccmd  = cooldowns.find(nam => nam.usr === name);
+	if(!ccmd) return false;
+	//Array.prototype.find always returns the first item matching the pattern,
+	//and we insert new coolodnws to the start of the array. New CD for a user
+	//is only registered once a command is done, so if the top CD for the user
+	//is not command execution then it was executing
+	if(ccmd.cmd != "__command_execution") return false;
+	
+	//grace period for stuck commands
+	//this should never happen thou
+	if((getUnixtime()-ccmd.ptime) > 60){
+		return false;
+	} else {
+		return true;
+	}	
+}
+
+function getOtherCD(name){
+	//There are two "other" cooldown sources:
+	//1. the user messed up a command. This does not warrant a full command cd,
+	//   but should give them a few seconds cd
+	//2. the user tried to run a command they are not allowed to run. To prevent
+	//   spamming admin commands and flooding the chat with the error message they
+	//   should wait a reasonable amount of time before using anything else.
+	
+	const badcmd = cooldowns.find(nam => nam.usr===name && nam.cmd === "__failed_command");
+	const noperm = cooldowns.find(nam => nam.usr===name && nam.cmd === "__global_security");
+	let rbad, rnoperm;
+	
+	if(!badcmd){
+		rbad = false;
+	} else {
+		if((getUnixtime() - badcmd.ptime) > ksb.c.failedCmdCD)
+			rbad = false;
+		else
+			rbad = true;
+	}
+	if(!noperm){
+		rnoperm = false;
+	} else {
+		if((getUnixtime() - noperm.ptime) > ksb.c.noPermCmdCD)
+			rnoperm = false;
+		else
+			rnoperm = true;
+	}
+	return (rbad && rnoperm);
+}
+
+function checkCD(user, cmd){
+	return (getCmdCD(cmd) || getUserCD(user, cmd) || getOtherCD(user));
 }
 
 exports.getUnixtime	= getUnixtime;
@@ -237,7 +303,6 @@ exports.sleep		= sleep;
 exports.DonkDB		= DonkDB;
 exports.logger		= logger;
 exports.memusage	= memusage;
-exports.usercheck	= usercheck;
 exports.getAS		= getAS;
 exports.playsound	= playsound;;
 exports.pointPS		= pointPS;
@@ -245,3 +310,8 @@ exports.getAlias	= getAlias;
 exports.loadCommands= loadCommands;
 exports.user_levels	= user_levels;
 exports.getUserLevel= getUserLevel;
+exports.checkCD		= checkCD;
+exports.registerCooldown = registerCooldown;
+exports.getExecutionStatus = getExecutionStatus;
+exports.cooldowns	= cooldowns;
+

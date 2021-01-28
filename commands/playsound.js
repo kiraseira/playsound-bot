@@ -6,8 +6,8 @@ exports.kirabot_command = {
 		userlevel: 1,
 		pingsender: 1,
 		cds: {
-				user: 30,
-				channel: 40
+				user: 10,
+				channel: 15
 			},
 		code: function(sender, lparam) {
 				return new Promise((resolve, reject) => {

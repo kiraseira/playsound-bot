@@ -18,6 +18,12 @@ ksb.status = "idle";
 
 ptl(1, "Kira playsound bot v0.1 starting up");
 ptl(1, `System: ${ksb.os.platform} @ ${ksb.os.hostname}, node version: ${process.versions.node}, v8 version: ${process.versions.v8}`);
+
+if(ksb.c.devch === ksb.c.prodch.name){
+	ptl(0, "Your dev channel and production channel are the same you pepga. If you don't want to use a dev channel unset the variable!");
+	process.exit(0);
+}
+
 ptl(1, `<db> Attempting to open sqlite database at '${ksb.c.dbname}'`);
 try { ksb.db = new ksb.util.DonkDB(ksb.c.dbname); }
 catch(err) {
@@ -56,7 +62,7 @@ function onReady(){
 	ksb.ps.connect();
 	msgQ();
 	ksb.sendMsg(ksb.c.devch, "connected FeelsDankMan 📣");
-	//ksb.sendMsg(ksb.c.prodch.name, "connected FeelsDankMan 📣");
+	ksb.sendMsg(ksb.c.prodch.name, "connected FeelsDankMan 📣");
 	ksb.stt(`kirabot online - dev: ${ksb.c.devch}, prod: ${ksb.c.prodch.name}(${ksb.c.prodch.twid})`);
 }
 
@@ -80,6 +86,7 @@ async function incomingMessage(inMsg){
 	let channel = inMsg.channelName;
 	
 	if (sender === ksb.c.username || message.length<2 || message[0] != ksb.c.prefix) return;
+	if (ksb.util.getUserLevel(sender) < 2 && channel === ksb.c.devch) return;
 	
 	commandHandler(message, channel, sender);
 }
@@ -89,22 +96,29 @@ function commandHandler(message, channel, sender){
 	let cmd;
 	cmd = ksb.cmds.find(ccmd => ccmd.name === ksb.util.getAlias(inparams.split(" ")[0]));
 	if(!cmd) return;	//there is no command with that name or alias.
+	if(channel===ksb.c.prodch.name && ksb.util.getExecutionStatus(sender)) return;
 	let userlvl = ksb.util.getUserLevel(sender);
-	if (cmd.userlevel > userlvl){
-		sendMsg(channel, `${sender} you are not allowed to run that command.`);
-		//placeholder: add cooldown here
+	if(userlvl <2 && channel === ksb.c.devch) return;
+	if(ksb.util.checkCD(sender, cmd.name) && channel===ksb.c.prodch.name){
+		ptl(3, `<cmds> Not executing ${cmd.name} because it's still on cooldown.`);
 		return;
 	}
+	if (cmd.userlevel > userlvl){
+		sendMsg(channel, `${sender} you are not allowed to run that command.`);
+		ksb.util.registerCooldown(sender, "__global_security", ksb.util.getUnixtime());
+		return;
+	}
+	ksb.util.registerCooldown(sender, "__command_execution", ksb.util.getUnixtime());
 	cmd.code(sender, inparams).then((data) => {
 		if(cmd.pingsender === 1)
 			sendMsg(channel, `${sender}, ${data}`);
 		else
 			sendMsg(channel, `${data}`);
-		//TODO: register command cooldown here
+		ksb.util.registerCooldown(sender, cmd.name, ksb.util.getUnixtime());
 		return;
 	}).catch((err) => {
 		sendMsg(channel, `${sender}, couldn't execute your command: ${err}`);
-		//TODO: register failed command cd here
+		ksb.util.registerCooldown(sender, "__failed_command", ksb.util.getUnixtime());
 		return;
 	});
 }

@@ -22,7 +22,7 @@ ps.addEventListener('open', ELopen);
 ps.addEventListener('message', ELmessage);
 
 function ELopen(){
-	ksb.util.logger(2, `<ps> Connected to pubsub. Subscribing to topic.`);
+	ksb.util.logger(2, `<ps> Connected to pubsub. Subscribing to topics.`);
 	//listenStreamStatus();
 	listenChannelPoints();
 }

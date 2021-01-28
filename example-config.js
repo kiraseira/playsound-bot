@@ -21,6 +21,8 @@ exports.kbconfig = {
 	prodch: {name: "", twid: 0},				//channel namd and twitch it for the channel where the bot will run
 	loglvl: 3,									//0: no logging, 1: WARN, 2: INFO, 3: DBG
 	failedCmdCD: 5,									//when a command is failed this cooldown is applied rather than the command's
+	channelcd: 3,									//global channel cd to be uphelp between any two command invocations
+	noPermCmdCD: 30,								//forced break if a user tries to run a command they are not allowed to
 	categories: {	a: "",						//title of the channelpoint option associated with categories
 					b: "",
 					c: ""}
