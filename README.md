@@ -17,3 +17,5 @@ versions. The bot is developed and tested with this. Yes, I know it's a
 Compilation on GNU/Linux, BSDs is painless, you probably just need make and cc. 
 npm will tell you.
 
+**DonkStare Where are the chat commands I supposed to symlink to commands-enabled?**
+They are in a separate repo called "psbot-commands".
