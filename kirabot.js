@@ -92,13 +92,16 @@ async function incomingMessage(inMsg){
 }
 
 function commandHandler(message, channel, sender){
-	let inparams = message.trim().substring(1);
-	let cmd;
-	cmd = ksb.cmds.find(ccmd => ccmd.name === ksb.util.getAlias(inparams.split(" ")[0]));
-	if(!cmd) return;	//there is no command with that name or alias.
+	//don't even continue if the user has a command in executing status
 	if(channel===ksb.c.prodch.name && ksb.util.getExecutionStatus(sender)) return;
+	//in the dev channel only the operator and the broadcaster can post
 	let userlvl = ksb.util.getUserLevel(sender);
 	if(userlvl <2 && channel === ksb.c.devch) return;
+	//check if the command even exists, return if its not
+	let cmd, inparams = message.trim().substring(1);
+	cmd = ksb.cmds.find(ccmd => ccmd.name === ksb.util.getAlias(inparams.split(" ")[0]));
+	if(!cmd) return;	//there is no command with that name or alias.
+	
 	if(ksb.util.checkCD(sender, cmd.name) && channel===ksb.c.prodch.name){
 		ptl(3, `<cmds> Not executing ${cmd.name} because it's still on cooldown.`);
 		return;
