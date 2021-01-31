@@ -111,7 +111,8 @@ function commandHandler(message, channel, sender){
 		ksb.util.registerCooldown(sender, "__global_security", ksb.util.getUnixtime());
 		return;
 	}
-	ksb.util.registerCooldown(sender, "__command_execution", ksb.util.getUnixtime());
+	if(cmd.execution_check)
+		ksb.util.registerCooldown(sender, "__command_execution", ksb.util.getUnixtime());
 	cmd.code(sender, inparams).then((data) => {
 		if(cmd.pingsender === 1)
 			sendMsg(channel, `${sender}, ${data}`);
