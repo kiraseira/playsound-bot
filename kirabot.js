@@ -5,6 +5,7 @@ const { ChatClient} = require("dank-twitch-irc");
 ksb.stt		= require("set-terminal-title");
 ksb.os		= require("os");
 ksb.fs		= require("fs");
+ksb.got		= require("got");
 ksb.player	= require("node-wav-player");
 ksb.c		= require("./config.js").kbconfig;
 ksb.util	= require("./ksb-util.js");
