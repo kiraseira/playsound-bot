@@ -5,6 +5,8 @@
  * To find the twitch ID you need for the prodch setting you can
  * - copy it from a Chatterino "user card"
  * - go to https://customapi.aidenwallis.co.uk/api/v1/twitch/toID/yourname and get it from there
+ * - leave it 0. The bot will try to use the api above to find it. You can then copy the number to here
+ * 	 to speed up further startups and protect against API outages
  * Obviously, replace yourname in the link to your channels name :)
  */ 
 "use strict"; 

@@ -42,10 +42,6 @@ ksb.chatclient.on("close", onClose);
 ksb.chatclient.on("error", onError);
 ksb.chatclient.on("PRIVMSG", incomingMessage);
 
-if(ksb.c.prodch.twid===0){
-	ptl(2, `WARNING: twitch id of the production channel is not set. Channel point monitoring will not work!`);
-}
-
 ksb.chatclient.connect();
 
 function onConnecting(){

@@ -163,7 +163,22 @@ setInterval(() => {
 
 module.exports.connect = function() {
     if(!psStarted){
-		ps.reconnect();
-		psStarted = true;
+		if(!ksb.c.prodch.twid || ksb.c.prodch.twid===0){
+			ksb.util.logger(1, `<ps> Twitch ID of the prod channel is not set. Attempting to get from an API...`);
+			ksb.got.get("https://customapi.aidenwallis.co.uk/api/v1/twitch/toID/"+ksb.c.prodch.name).then((d) => {
+				ksb.util.logger(1, `<ps> Success! Got ${d.body} from API. Consider saving this number to config.js -> prodch -> twid`);
+				ksb.c.prodch.twid = Number(d.body);
+				ps.reconnect();
+				psStarted = true;
+				
+			}).catch((err) => {
+				ksb.util.logger(1, `<ps> Error while trying to get the ID of the prod channel: ${err}`);
+				ksb.util.logger(1, `<ps> Channel point monitoring will not work Saj`);
+			});
+			
+		} else {
+			ps.reconnect();
+			psStarted = true;
+		}	
 	}	
 };
