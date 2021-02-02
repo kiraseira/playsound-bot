@@ -112,10 +112,13 @@ function commandHandler(message, channel, sender){
 		ksb.util.registerCooldown(sender, "__command_execution", ksb.util.getUnixtime());
 	cmd.code(sender, inparams).then((data) => {
 		if(cmd.pingsender === 1)
-			sendMsg(channel, `${sender}, ${data}`);
+			sendMsg(channel, `${sender}, ${data.msg}`);
 		else
-			sendMsg(channel, `${data}`);
-		ksb.util.registerCooldown(sender, cmd.name, ksb.util.getUnixtime());
+			sendMsg(channel, `${data.msg}`);
+		if (data.resolvedOnSuccess)	
+			ksb.util.registerCooldown(sender, cmd.name, ksb.util.getUnixtime());
+		else
+			ksb.util.registerCooldown(sender, "__failed_command", ksb.util.getUnixtime());
 		return;
 	}).catch((err) => {
 		sendMsg(channel, `${sender}, couldn't execute your command: ${err}`);
