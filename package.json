@@ -15,7 +15,8 @@
     "dank-twitch-irc": "~4.3.0",
     "got": "~11.8.0",
     "node-wav-player": "^0.2.0",
-    "set-terminal-title": "^1.0.1"
+    "set-terminal-title": "^1.0.1",
+    "wav-file-info": "~0.0.10"
   },
   "keywords": [
     "twitch",

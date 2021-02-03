@@ -10,6 +10,7 @@ ksb.player	= require("node-wav-player");
 ksb.c		= require("./config.js").kbconfig;
 ksb.util	= require("./ksb-util.js");
 ksb.ps		= require("./twitch-pubsub.js");
+ksb.wavinfo = require("wav-file-info");
 ksb.cmds	= [];
 ksb.messageq= [];
 ksb.chatclient = new ChatClient({username: ksb.c.username, password: ksb.c.oauth, rateLimits: ksb.c.ratelimit});
