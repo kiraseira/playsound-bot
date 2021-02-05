@@ -156,8 +156,9 @@ class DonkDB{
 	}
 }
 
-function playsound(sndName){
+function playsound(tsndName){
 return new Promise((resolve, reject) => {
+	const sndName = tsndName.toLowerCase();
 	let sdata = ksb.db.syncSelect(`SELECT * FROM playsounds WHERE name='${sndName}';`);
 	if (!sdata || sdata.length===0){
 		reject(`invalid playsound ${sndName}`);
@@ -235,7 +236,7 @@ function getUserCD(name, cmd){
 	const tcmd = ksb.cmds.find(nam => nam.name === cmd);
 	const ccmd = cooldowns.find(nam => nam.cmd === cmd && nam.usr === name);
 	if(!tcmd || !ccmd) return false;
-	
+
 	if((getUnixtime()-ccmd.ptime) > tcmd.cds.user){
 		return false;
 	} else {
@@ -253,14 +254,14 @@ function getExecutionStatus(name){
 	//is only registered once a command is done, so if the top CD for the user
 	//is not command execution then it was executing
 	if(ccmd.cmd != "__command_execution") return false;
-	
+
 	//grace period for stuck commands
 	//this should never happen thou
 	if((getUnixtime()-ccmd.ptime) > 60){
 		return false;
 	} else {
 		return true;
-	}	
+	}
 }
 
 function getOtherCD(name){
@@ -270,11 +271,11 @@ function getOtherCD(name){
 	//2. the user tried to run a command they are not allowed to run. To prevent
 	//   spamming admin commands and flooding the chat with the error message they
 	//   should wait a reasonable amount of time before using anything else.
-	
+
 	const badcmd = cooldowns.find(nam => nam.usr===name && nam.cmd === "__failed_command");
 	const noperm = cooldowns.find(nam => nam.usr===name && nam.cmd === "__global_security");
 	let rbad, rnoperm;
-	
+
 	if(!badcmd){
 		rbad = false;
 	} else {

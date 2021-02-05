@@ -82,10 +82,10 @@ async function incomingMessage(inMsg){
 	let sender 	= inMsg.senderUsername.toLowerCase();
 	let message = String(inMsg.messageText);
 	let channel = inMsg.channelName;
-	
+
 	if (sender === ksb.c.username || message.length<2 || message[0] != ksb.c.prefix) return;
 	if (ksb.util.getUserLevel(sender) < 2 && channel === ksb.c.devch) return;
-	
+
 	commandHandler(message, channel, sender);
 }
 
