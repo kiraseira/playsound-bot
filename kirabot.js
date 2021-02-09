@@ -11,6 +11,7 @@ ksb.c		= require("./config.js").kbconfig;
 ksb.util	= require("./ksb-util.js");
 ksb.ps		= require("./twitch-pubsub.js");
 ksb.wavinfo = require("wav-file-info");
+ksb.haste	= require("hastebin");
 ksb.cmds	= [];
 ksb.messageq= [];
 ksb.chatclient = new ChatClient({username: ksb.c.username, password: ksb.c.oauth, rateLimits: ksb.c.ratelimit});
@@ -60,7 +61,7 @@ function onReady(){
 	ksb.ps.connect();
 	msgQ();
 	ksb.sendMsg(ksb.c.devch, "connected FeelsDankMan 📣");
-	ksb.sendMsg(ksb.c.prodch.name, "connected FeelsDankMan 📣");
+	//ksb.sendMsg(ksb.c.prodch.name, "connected FeelsDankMan 📣");
 	ksb.stt(`kirabot online - dev: ${ksb.c.devch}, prod: ${ksb.c.prodch.name}(${ksb.c.prodch.twid})`);
 }
 
