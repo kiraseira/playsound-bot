@@ -299,6 +299,27 @@ function checkCD(user, cmd){
 	return (getCmdCD(cmd) || getUserCD(user, cmd) || getOtherCD(user));
 }
 
+function timeconv(inSecs){
+	if(isNaN(inSecs)) return "NaN";
+	let tday, thour, tmin, tsecs;
+	let result = "";
+	
+	tsecs	= inSecs;
+	tday	= Math.floor(tsecs/86400);
+	tsecs  -= tday*86400;
+	thour	= Math.floor(tsecs/3600);
+	tsecs  -= thour*3600
+	tmin	= Math.floor(tsecs/60);
+	tsecs  -= tmin*60;
+
+	if(tday >0) result += (`${tday}d `);
+	if(thour>0) result += (`${thour}h `);
+	if(tmin >0) result += (`${tmin}min `);
+	if(tsecs>0) result += (`${tsecs}s`);
+
+	return result;
+}
+
 exports.getUnixtime	= getUnixtime;
 exports.sleep		= sleep;
 exports.DonkDB		= DonkDB;
@@ -315,4 +336,4 @@ exports.checkCD		= checkCD;
 exports.registerCooldown = registerCooldown;
 exports.getExecutionStatus = getExecutionStatus;
 exports.cooldowns	= cooldowns;
-
+exports.timeconv	= timeconv;

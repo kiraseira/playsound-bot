@@ -14,6 +14,7 @@ ksb.wavinfo = require("wav-file-info");
 ksb.haste	= require("hastebin");
 ksb.cmds	= [];
 ksb.messageq= [];
+ksb.startt	= ksb.util.getUnixtime();
 ksb.chatclient = new ChatClient({username: ksb.c.username, password: ksb.c.oauth, rateLimits: ksb.c.ratelimit});
 
 const ptl = ksb.util.logger;
