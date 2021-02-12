@@ -83,6 +83,14 @@ function getAlias(cmdname){
 		return nam.cmd;
 }
 
+function getPsAlias(sndname){
+	if(!sndname || sndname.length===0) return "";
+	if (sndname.indexOf(`'`) != -1) return "";
+	let nam = ksb.db.syncSelect(`SELECT * FROM aliases WHERE alias='${sndname}';`);
+	if (nam.length === 0) return sndname;
+	return nam[0].target;
+}
+
 function getAS(channel){
 	switch(channel){
 		case(ksb.c.devch):
@@ -158,7 +166,11 @@ class DonkDB{
 
 function playsound(tsndName){
 return new Promise((resolve, reject) => {
-	const sndName = tsndName.toLowerCase();
+	const sndName = getPsAlias(tsndName.toLowerCase());
+	if(sndName === ""){
+		reject("illegal playsound name");
+		return;
+	}	
 	let sdata = ksb.db.syncSelect(`SELECT * FROM playsounds WHERE name='${sndName}';`);
 	if (!sdata || sdata.length===0){
 		reject(`invalid playsound ${sndName}`);
@@ -185,8 +197,15 @@ return new Promise((resolve, reject) => {
 });
 }
 
-function pointPS(sender, category, sndname){
-	ksb.util.logger(3, `<chps> Redemption by ${sender} for sound ${sndname}`);
+function pointPS(sender, category, insndname){
+	ksb.util.logger(3, `<chps> Redemption by ${sender} for sound ${insndname}`);
+	const sndname = getPsAlias(insndname);
+	if (sndname === ""){
+		ksb.sendMsg(ksb.c.prodch.name, `${sender} what you specified is not a valid playsound name.`);
+		ksb.sendMsg(ksb.c.prodch.name, `MODS check if the name was a possible sql injection attempt.`);
+		logger(2, `<security> ${sender} tried to redeem an illegal playsoundname "${insndname}" using channelpoints.`);
+		return;
+	}
 	let sdata = ksb.db.syncSelect(`SELECT * FROM playsounds WHERE name='${sndname}';`);
 	if (!sdata || sdata.length===0){
 		ksb.sendMsg(ksb.c.prodch.name, `${sender}, that playsound does not exist. See ${ksb.c.prefix}listps for a list of playsounds.`);
@@ -337,3 +356,4 @@ exports.registerCooldown = registerCooldown;
 exports.getExecutionStatus = getExecutionStatus;
 exports.cooldowns	= cooldowns;
 exports.timeconv	= timeconv;
+exports.getPsAlias	= getPsAlias;

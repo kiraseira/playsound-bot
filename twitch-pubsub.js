@@ -112,6 +112,7 @@ async function handleWSMsg (msg = {}){
             const redeemer	= msg.data.user.login;
             const category	= msg.data.reward.title;
             const uin 		= String(msg.data.user_input).trim().split(" ");
+            if(uin.length===0) return;
             let tcat;
             switch(category){
 				case ksb.c.categories.a:
@@ -130,8 +131,12 @@ async function handleWSMsg (msg = {}){
             if (ksb.c.ps_prefix === null) {
 				ksb.util.pointPS(redeemer, tcat, uin[0].toLowerCase());
 			} else {
-				if (uin[0].toLowerCase() === ksb.c.ps_prefix)
-					ksb.util.pointPS(redeemer, tcat, uin[1].toLowerCase());
+				if (uin[0].toLowerCase() === ksb.c.ps_prefix){
+					if(uin.length>=2)
+						ksb.util.pointPS(redeemer, tcat, uin[1].toLowerCase());
+					else
+						ksb.sendMsg(ksb.c.prodch.name, `${redeemer} in addition to the prefix you also need to specify a sound name!`);
+				}		
 			}
             break;
         }
