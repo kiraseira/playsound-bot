@@ -199,6 +199,10 @@ return new Promise((resolve, reject) => {
 
 function pointPS(sender, category, insndname){
 	ksb.util.logger(3, `<chps> Redemption by ${sender} for sound ${insndname}`);
+	if(bancheck(sender)){
+		ksb.util.logger(3, `<chps> No, I don't think so (user is banned)`);
+		return;
+	}
 	const sndname = getPsAlias(insndname);
 	if (sndname === ""){
 		ksb.sendMsg(ksb.c.prodch.name, `${sender} what you specified is not a valid playsound name.`);
@@ -221,6 +225,12 @@ function pointPS(sender, category, insndname){
 		ksb.sendMsg(ksb.c.prodch.name, `${sender} there was a problem while trying to play your sound, ask for point refund.`);
 		return;
 	});
+}
+
+function bancheck(username){
+	let d = ksb.db.syncSelect(`SELECT * FROM bans WHERE username='${username}';`);
+	if(d.length>0) return true;
+		else return false;
 }
 
 function registerCooldown(user, command, time){
@@ -357,3 +367,4 @@ exports.getExecutionStatus = getExecutionStatus;
 exports.cooldowns	= cooldowns;
 exports.timeconv	= timeconv;
 exports.getPsAlias	= getPsAlias;
+exports.bancheck	= bancheck;
