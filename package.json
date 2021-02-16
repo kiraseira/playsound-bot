@@ -16,6 +16,7 @@
     "got": "~11.8.0",
     "hastebin": "~0.2.1",
     "node-wav-player": "^0.2.0",
+    "reconnecting-websocket": "~4.4.0",
     "set-terminal-title": "^1.0.1",
     "wav-file-info": "~0.0.10"
   },

@@ -132,6 +132,11 @@ function commandHandler(message, channel, sender){
 	}).catch((err) => {
 		sendMsg(channel, `${sender}, couldn't execute your command: ${err}`);
 		ksb.util.registerCooldown(sender, "__failed_command", ksb.util.getUnixtime());
+		if(cmd.execution_check){
+			//neutralize execution CD on fail.
+			let i = ksb.util.cooldowns.findIndex(nam => nam.usr === sender && nam.cmd === "__command_execution:"+cmd.name);
+			if(i!=-1) ksb.util.cooldowns[i].ptime -= 61;
+		}
 		return;
 	});
 }

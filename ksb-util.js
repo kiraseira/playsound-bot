@@ -5,7 +5,7 @@ let aliases = [];
 let cooldowns = [];
 //cooldowns format: Array of {usr: "username", cmd: "command name", ptime: unixtime}
 //NOTE: channel name is not tracked in cooldowns as only the prod channel is subject to CDs
-const sqlite3 = require("better-sqlite3");
+const sqlite3 = require("better-sqlite3-with-prebuilds");
 const user_levels = ["user", "trusted user", "broadcaster", "operator"];
 
 function getUnixtime(){
@@ -275,11 +275,19 @@ function getUserCD(name, cmd){
 
 function getExecutionStatus(name, cmdname){
 	if(cooldowns.length === 0) return false;
-	//const ccmd = cooldowns.find(nam => nam.usr === name && nam.cmd==="__command_execution");
+	//1. check if its even an execution cd with that command. If none, not on cd
 	const ccmd  = cooldowns.find(nam => nam.usr === name && nam.cmd === "__command_execution:"+cmdname);
 	if(!ccmd) return false;
+	//2. If there is an execution cd, check if there is a normal cd for the same user and same command
+	//	 If there is indeed one then the command finished and we coo.
+	const fcmd = cooldowns.find(nam => nam.usr === name && nam.cmd===cmdname);
+	if(fcmd){
+		if(fcmd.ptime>ccmd.ptime) return false;
+	}
+	//NOTE: resetting execution CD for failed commands is done in the command handler.
 
-	//grace period for stuck commands
+	//3. If we got there, the user has a command executing, BUT after a grace
+	//	 period, release it. In case of stuck commands, unlikely but could happen.
 	if((getUnixtime()-ccmd.ptime) > 60){
 		return false;
 	} else {
