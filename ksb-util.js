@@ -273,19 +273,13 @@ function getUserCD(name, cmd){
 	}
 }
 
-function getExecutionStatus(name){
+function getExecutionStatus(name, cmdname){
 	if(cooldowns.length === 0) return false;
 	//const ccmd = cooldowns.find(nam => nam.usr === name && nam.cmd==="__command_execution");
-	const ccmd  = cooldowns.find(nam => nam.usr === name);
+	const ccmd  = cooldowns.find(nam => nam.usr === name && nam.cmd === "__command_execution:"+cmdname);
 	if(!ccmd) return false;
-	//Array.prototype.find always returns the first item matching the pattern,
-	//and we insert new coolodnws to the start of the array. New CD for a user
-	//is only registered once a command is done, so if the top CD for the user
-	//is not command execution then it was executing
-	if(ccmd.cmd != "__command_execution") return false;
 
 	//grace period for stuck commands
-	//this should never happen thou
 	if((getUnixtime()-ccmd.ptime) > 60){
 		return false;
 	} else {

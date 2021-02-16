@@ -94,8 +94,6 @@ async function incomingMessage(inMsg){
 }
 
 function commandHandler(message, channel, sender){
-	//don't even continue if the user has a command in executing status
-	if(channel===ksb.c.prodch.name && ksb.util.getExecutionStatus(sender)) return;
 	//in the dev channel only the operator and the broadcaster can post
 	let userlvl = ksb.util.getUserLevel(sender);
 	if(userlvl <2 && channel === ksb.c.devch) return;
@@ -103,6 +101,11 @@ function commandHandler(message, channel, sender){
 	let cmd, inparams = message.trim().substring(1);
 	cmd = ksb.cmds.find(ccmd => ccmd.name === ksb.util.getAlias(inparams.split(" ")[0]));
 	if(!cmd) return;	//there is no command with that name or alias.
+	
+	if(ksb.util.getExecutionStatus(sender, cmd.name)){
+		sendMsg(channel, `${sender} wait until your previous ${cmd.name} finishes running.`);
+		return;
+	}
 	
 	if(ksb.util.checkCD(sender, cmd.name) && channel===ksb.c.prodch.name){
 		ptl(3, `<cmds> Not executing ${cmd.name} because it's still on cooldown.`);
@@ -114,7 +117,8 @@ function commandHandler(message, channel, sender){
 		return;
 	}
 	if(cmd.execution_check)
-		ksb.util.registerCooldown(sender, "__command_execution", ksb.util.getUnixtime());
+		ksb.util.registerCooldown(sender, "__command_execution:"+cmd.name, ksb.util.getUnixtime());
+		
 	cmd.code(sender, inparams).then((data) => {
 		if(cmd.pingsender === 1)
 			sendMsg(channel, `${sender}, ${data.msg}`);
