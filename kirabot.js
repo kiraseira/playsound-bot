@@ -62,7 +62,7 @@ function onReady(){
 	ksb.ps.connect();
 	msgQ();
 	ksb.sendMsg(ksb.c.devch, "connected FeelsDankMan 📣");
-	//ksb.sendMsg(ksb.c.prodch.name, "connected FeelsDankMan 📣");
+	ksb.sendMsg(ksb.c.prodch.name, "connected FeelsDankMan 📣");
 	ksb.stt(`kirabot online - dev: ${ksb.c.devch}, prod: ${ksb.c.prodch.name}(${ksb.c.prodch.twid})`);
 }
 

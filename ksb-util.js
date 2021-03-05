@@ -323,11 +323,11 @@ function getOtherCD(name){
 		else
 			rnoperm = true;
 	}
-	return (rbad && rnoperm);
+	return (rbad || rnoperm);
 }
 
 function checkCD(user, cmd){
-	return (getCmdCD(cmd) || getUserCD(user, cmd) || getOtherCD(user));
+	return (getChannelCD() || getCmdCD(cmd) || getUserCD(user, cmd) || getOtherCD(user));
 }
 
 function timeconv(inSecs){
